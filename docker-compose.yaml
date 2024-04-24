@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+
+  redis:
+    image: redis:7.0.5-alpine
+    container_name: redis
+    restart: always
+    ports:
+      - '6379:6379'
+
+  task_worker:
+    container_name: task_worker
+    build: ./test_api/
+    entrypoint: celery
+    command: -A test_api.celery.app worker --loglevel=DEBUG
+    volumes:
+      - static_value:/test_api/static/
+      - media_value:/test_api/media/
+    restart: always
+    links:
+      - redis
+    env_file:
+      - .env
+    depends_on:
+      - redis
+
+  flower:
+    container_name: flower
+    build: ./test_api
+    entrypoint: celery
+    command: -A test_api.celery.app flower
+    volumes:
+      - static_value:/test_api/static/
+      - media_value:/test_api/media/
+    restart: always
+    links:
+      - redis
+    env_file:
+      - .env
+    depends_on:
+      - task_worker
+      - redis
+    ports:
+      - '5555:5555'
+  
+  web:
+    build: ./test_api/
+    command: python manage.py runserver  0.0.0.0:8000
+    ports:
+      - 8000:8000
+    volumes:
+      - static_value:/app/static/
+      - media_value:/app/media/
+    env_file: .env
+    links:
+      - task_worker
+    depends_on:
+      - redis
+      - task_worker
+
+volumes:
+  static_value:
+  media_value:
