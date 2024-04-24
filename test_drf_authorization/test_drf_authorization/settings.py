@@ -16,7 +16,6 @@ ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS').split(', ')
 AUTH_USER_MODEL = 'users.User'
 
 INSTALLED_APPS = [
-    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
