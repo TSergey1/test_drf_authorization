@@ -105,8 +105,8 @@ STATIC_ROOT = BASE_DIR.joinpath('static')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'Your Project API',
-    'DESCRIPTION': 'Your project description',
+    'TITLE': 'API USER',
+    'DESCRIPTION': 'Авторизация по номеру телефона',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
 }
