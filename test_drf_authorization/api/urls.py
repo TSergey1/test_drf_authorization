@@ -5,13 +5,13 @@ from rest_framework.routers import DefaultRouter
 
 app_name = 'api'
 
-# router = DefaultRouter()
+router = DefaultRouter()
 
-# router.register('users', UserViewSet, basename='users')
+router.register('users', UserViewSet, basename='users')
 
-# urlpatterns = [
-#     path('', include(router.urls)),
-# ]
+urlpatterns = [
+    path('', include(router.urls)),
+]
 
 urlpatterns = [
     path('login/', LoginView.as_view(), name = 'login'),
