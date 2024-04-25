@@ -6,6 +6,8 @@ from django.db import models
 
 from users.utils import create_code, create_token
 
+HELP_TEXT_PHONE = 'Введите номер телефона в формате +7**********'
+
 
 class UserManager(BaseUserManager):
     """Переопределяем мэнеджер пользователя."""
@@ -41,7 +43,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     """Модель пользователя"""
     password = None
     last_login = None
-    phone = PhoneNumberField(unique=True, verbose_name='Номер телефона')
+    phone = PhoneNumberField(unique=True, verbose_name='Номер телефона',
+                             help_text=HELP_TEXT_PHONE)
     invite_code = models.CharField(
         max_length=6, default=create_code(),
         unique=True, verbose_name='Инвайт-код'

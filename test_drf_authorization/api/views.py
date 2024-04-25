@@ -1,7 +1,12 @@
-# from rest_framework.permissions import AllowAny
+from rest_framework.generics import CreateAPIView
+from rest_framework.permissions import AllowAny
 
-# from users.models import User
 
-# class UserViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
-#     queryset = User.objects.all()
-#     permission_classes = (AllowAny,)
+from users.models import User
+from api.serializers import LoginSerializer
+
+
+class LoginView(CreateAPIView):
+    queryset = User.objects.all()
+    permission_classes = (AllowAny,)
+    serializer_class = LoginSerializer
