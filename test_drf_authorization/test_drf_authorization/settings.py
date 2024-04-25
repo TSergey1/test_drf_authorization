@@ -112,5 +112,4 @@ SPECTACULAR_SETTINGS = {
     'TITLE': 'API USER',
     'DESCRIPTION': 'Авторизация по номеру телефона',
     'VERSION': '1.0.0',
-    'SERVE_INCLUDE_SCHEMA': False,
 }
