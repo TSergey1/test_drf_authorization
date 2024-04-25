@@ -17,10 +17,6 @@ class UserManager(BaseUserManager):
 
         user, _ = User.objects.get_or_create(phone=phone)
 
-        if user.referral_code is None:
-            user.referral_code = create_code()
-            user.save()
-
         token = CallbackToken.objects.create(user=user)
         token.save()
         return user
