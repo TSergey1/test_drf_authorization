@@ -6,21 +6,29 @@ from django.contrib.auth.models import (AbstractBaseUser, BaseUserManager,
                                         PermissionsMixin)
 from django.db import models
 
+from users.utils import create_invite_code
+
 
 class UserManager(BaseUserManager):
-    """Переопределяем мэнеджер пользователя"""
+    """Переопределяем мэнеджер пользователя."""
 
-    def create_user(self, email, password, **kwargs):
-        """Создает и возвращает пользователя с email и password"""
-        if email is None:
-            raise TypeError('У пользователя должен быть email.')
-        user = self.model(email=email, password=password, **kwargs)
-        user.set_password(password)
-        user.save()
+    def create_user(self, phone, **kwargs):
+        """Создает и сохраняет пользователя с phone."""
+        if not phone:
+            raise ValueError('The given phone must be set')
+
+        user = User.objects.get_or_create(phone=phone)
+
+        if user.referral_code is None:
+            user.referral_code = create_code()
+            user.save()
+
+        token = CallbackToken.objects.create(user=user)
+        token.save()
         return user
 
     def create_superuser(self, email, password, **kwargs):
-        """Создает и возввращет пользователя с привилегиями суперадмина"""
+        """Создает и сохраняет пользователя как суперпользователя."""
         if password is None:
             raise TypeError('Superusers must have a password.')
 
@@ -31,16 +39,25 @@ class UserManager(BaseUserManager):
         return user
 
 
-class User(AbstractUser):
+class User(AbstractBaseUser, PermissionsMixin):
     """Модель пользователя"""
     phone = PhoneNumberField(unique=True)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
-    referral_code = models.CharField(max_length=6, null=True, default=None)
-    else_referral_code = models.ForeignKey('self',
-                                           on_delete=models.SET_DEFAULT,
-                                           null=True,
-                                           default=None)
+    invite_code = models.CharField(
+        max_length=6, default=create_invite_code(),
+        unique=True, verbose_name='Инвайт код'
+    )
+    else_invite_code = models.ForeignKey('self',
+                                         on_delete=models.SET_DEFAULT,
+                                         null=True,
+                                         default=None)
+    password = models.CharField(max_length=4,
+                                verbose_name='Одноразовый пароль',
+                                null=True)
+    is_staff = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)
+    created = models.DateTimeField(auto_now_add=True)
 
     USERNAME_FIELD = 'phone'
     REQUIRED_FIELDS = []
