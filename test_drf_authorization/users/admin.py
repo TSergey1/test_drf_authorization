@@ -8,7 +8,7 @@ User = get_user_model()
 class UserAdmin(admin.ModelAdmin):
     list_display = (
         'phone',
-        'first_name',
-        'last_name',
+        'invite_code',
+
     )
     list_filter = ('phone',)
