@@ -4,7 +4,7 @@ from django.contrib.auth.models import (AbstractBaseUser, BaseUserManager,
                                         PermissionsMixin)
 from django.db import models
 
-from users.utils import create_code, create_token
+from users.utils import create_invate_code, create_key
 
 HELP_TEXT_PHONE = 'Введите номер телефона в формате +7**********'
 
@@ -46,8 +46,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     phone = PhoneNumberField(unique=True, verbose_name='Номер телефона',
                              help_text=HELP_TEXT_PHONE)
     invite_code = models.CharField(
-        max_length=6, default=create_code(),
-        unique=True, verbose_name='Инвайт-код'
+        max_length=6, default=create_invate_code(),
+        verbose_name='Инвайт-код'
     )
     foreign_invite_code = models.ForeignKey('self',
                                             on_delete=models.SET_DEFAULT,
@@ -55,7 +55,7 @@ class User(AbstractBaseUser, PermissionsMixin):
                                             default=None)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
-    created = models.DateTimeField(auto_now_add=True)
+    is_verified = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'phone'
     REQUIRED_FIELDS = []
@@ -76,7 +76,8 @@ class CallbackToken(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
                              related_name=None,
                              on_delete=models.CASCADE)
-    key = models.CharField(default=create_token(), max_length=4)
+    key = models.CharField(default=create_key(),
+                           max_length=settings.KEY_LENGTH)
     is_active = models.BooleanField(default=True)
 
     class Meta:
