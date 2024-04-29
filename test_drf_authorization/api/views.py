@@ -1,11 +1,13 @@
+from drf_spectacular.utils import extend_schema
 from rest_framework import status
-from rest_framework.generics import CreateAPIView
+from rest_framework.generics import CreateAPIView, RetrieveUpdateAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 
-from api.serializers import LoginSerializer, TokenSerializer, VerifySerializer
+from api.serializers import (LoginSerializer, ProfileSerializer,
+                             TokenSerializer, VerifySerializer)
 from api.tasks import send_sms_with_token
 from api.utils import create_token
 from users.models import CallbackToken, User
@@ -51,7 +53,17 @@ class VerifyView(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
 
 
-class ProfileView(CreateAPIView):
+class ProfileView(RetrieveUpdateAPIView):
     queryset = User.objects.all()
     permission_classes = (IsAuthenticated,)
-    serializer_class = LoginSerializer
+    serializer_class = ProfileSerializer
+
+    def putch(self, request):
+        serializer = self.serializer_class(data=request.data, partial=True)
+        if serializer.is_valid(raise_exception=True):
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @extend_schema(deprecated=True)
+    def put(self):
+        """Метод PUT запрещен"""
+        raise NotImplementedError

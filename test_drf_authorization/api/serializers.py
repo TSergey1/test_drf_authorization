@@ -11,6 +11,11 @@ VERIFY_ERROR_MASSAGE = {
     'invalid_user': 'Указан неверный пользователь!',
     'invalid_token': 'Указан неверный токен!',
     'invalid_parameters': 'Указаны неверные параметры'
+}
+
+PROFILE_ERROR_MASSAGE = {
+    'reactivation': 'Вы уже активировали <invite_code>',
+    'invalid_invite_code': 'Указан несуществующий <invite_code>!',
 
 }
 
@@ -31,7 +36,7 @@ class TokenSerializer (serializers.Serializer):
     key = serializers.CharField(write_only=True)
 
 
-class VerifySerializer(serializers.ModelSerializer):
+class VerifySerializer(serializers.Serializer):
     phone = PhoneNumberField(required=True)
     token = serializers.CharField(min_length=settings.KEY_LENGTH,
                                   max_length=settings.KEY_LENGTH,
@@ -67,3 +72,58 @@ class VerifySerializer(serializers.ModelSerializer):
             )
         else:
             return data
+
+
+class ForeignInviteSerializer (serializers.ModelSerializer):
+    """Сериализатор пользователей с инвайткодом пользователя."""
+
+    class Meta:
+        model = User
+        read_only_fields = ('phone', )
+        fields = ('phone',)
+
+
+class ProfileSerializer (serializers.ModelSerializer):
+    """Сериализатор токена. """
+    foreign_invite_code = serializers.CharField(
+        min_length=settings.INVATE_CODE_LENGTH,
+        max_length=settings.INVATE_CODE_LENGTH,
+        required=False,
+        source='activate_invite_code'
+    )
+    activated_your_code = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        read_only_fields = ('id', 'phone', 'invite_code',)
+        fields = ('id', 'phone',
+                  'invite_code',
+                  'foreign_invite_code',
+                  'activated_your_code')
+
+    def get_activated_your_code(self, value):
+        queryset = User.objects.filter(foreign_invite_code=value)
+        return [ForeignInviteSerializer(user).data for user in queryset]
+
+    def validate(self, data):
+        foreign_invite_code = self.initial_data.get('foreign_invite_code')
+        new_foreign_invite_code = data.get('foreign_invite_code')
+        if new_foreign_invite_code:
+            if foreign_invite_code:
+                raise serializers.ValidationError(
+                    PROFILE_ERROR_MASSAGE['reactivation']
+                )
+            try:
+                user = User.objects.get(invite_code=new_foreign_invite_code)
+            except User.DoesNotExist:
+                raise serializers.ValidationError(
+                    PROFILE_ERROR_MASSAGE['invalid_invite_code']
+                )
+            except ValidationError:
+                raise serializers.ValidationError(
+                    VERIFY_ERROR_MASSAGE['invalid_parameters']
+                )
+            else:
+                self.instance.new_foreign_invite_code = user
+                self.instance.save()
+        return data
