@@ -29,6 +29,12 @@ class LoginSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', )
         fields = ('id', 'phone',)
 
+    def create(self, validated_data):
+        user, _ = User.objects.get_or_create(**validated_data)
+        token = CallbackToken.objects.create(user=user)
+        token.save()
+        return user
+
 
 class TokenSerializer (serializers.Serializer):
     """Сериализатор токена."""
@@ -45,7 +51,7 @@ class VerifySerializer(serializers.Serializer):
     def validate(self, data):
         token = data.get('token', None)
         phone = data.get('phone', None)
-        if token is not None or phone is not None:
+        if token is None or phone is None:
             raise serializers.ValidationError(
                 VERIFY_ERROR_MASSAGE['required_data']
             )
@@ -53,7 +59,7 @@ class VerifySerializer(serializers.Serializer):
             user = User.objects.get(phone=phone)
             CallbackToken.objects.get(user=user,
                                       key=token,
-                                      is_active=True).first()
+                                      is_active=True)
             data['user'] = user
             user.is_verified = True
             user.save()

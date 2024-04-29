@@ -6,6 +6,6 @@ app_name = 'api'
 
 urlpatterns = [
     path('login/', LoginView.as_view(), name='login'),
-    path('verify/<pk>', VerifyView.as_view(), name="verify"),
+    path('verify/', VerifyView.as_view(), name="verify"),
     path('profile/', ProfileView.as_view(), name='profile')
 ]

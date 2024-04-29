@@ -6,7 +6,7 @@ def send_sms_with_token(phone: str, token: str) -> bool:
     time.sleep(2)
     try:
         print((f'Отправка смс на номер телефона {phone}.'
-               f'Для входа введите: {token}'))
+               f'Проверочный код: {token}'))
         return True
     except Exception:
         return False

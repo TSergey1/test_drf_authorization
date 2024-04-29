@@ -11,6 +11,8 @@ HELP_TEXT_PHONE = 'Введите номер телефона в формате 
 
 class UserManager(BaseUserManager):
     """Переопределяем мэнеджер пользователя."""
+    use_in_migrations = True
+
     def create_user(self, phone, **extra_fields):
         """Создает и сохраняет пользователя с phone."""
         if not phone:
@@ -18,6 +20,9 @@ class UserManager(BaseUserManager):
 
         user, _ = User.objects.get_or_create(phone=phone,
                                              **extra_fields)
+        if user.invite_code is None:
+            user.invite_code = create_invate_code()
+            user.save()
         token = CallbackToken.objects.create(user=user)
         token.save()
         return user
@@ -73,7 +78,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 class CallbackToken(models.Model):
     """Модель данных токена подтверждения авторизации."""
     created_at = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+    user = models.ForeignKey(User,
                              related_name=None,
                              on_delete=models.CASCADE)
     key = models.CharField(default=create_key(),

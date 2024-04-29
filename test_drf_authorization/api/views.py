@@ -22,12 +22,10 @@ class LoginView(CreateAPIView):
     def post(self, request) -> Response:
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user, _ = User.objects.get_or_create(
-            phone=serializer.validated_data['phone']
-        )
+        serializer.save()
+        user = User.objects.get(pk=serializer.data['id'])
         callback_token = CallbackToken.objects.filter(user=user).first()
-        send_sms_with_token(user, callback_token)
-
+        send_sms_with_token(user.phone, callback_token)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
