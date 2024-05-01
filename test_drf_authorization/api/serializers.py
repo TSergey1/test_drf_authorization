@@ -31,6 +31,9 @@ class LoginSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user, _ = User.objects.get_or_create(**validated_data)
+        # if user.referral_code is None:
+        #     user.referral_code = generate_referral_code()
+        #     user.save()
         token = CallbackToken.objects.create(user=user)
         token.save()
         return user
@@ -91,36 +94,35 @@ class ForeignInviteSerializer (serializers.ModelSerializer):
 
 class ProfileSerializer (serializers.ModelSerializer):
     """Сериализатор токена. """
-    foreign_invite_code = serializers.CharField(
-        min_length=settings.INVATE_CODE_LENGTH,
-        max_length=settings.INVATE_CODE_LENGTH,
-        required=False,
-        source='activate_invite_code'
-    )
+    foreign_invite_code = serializers.CharField(write_only=True)
     activated_your_code = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        read_only_fields = ('id', 'phone', 'invite_code',)
+        # read_only_fields = ('id', 'phone', 'invite_code',)
         fields = ('id', 'phone',
                   'invite_code',
                   'foreign_invite_code',
                   'activated_your_code')
 
-    def get_activated_your_code(self, value):
-        queryset = User.objects.filter(foreign_invite_code=value)
+    def get_activated_your_code(self, obj: User) -> list:
+        queryset = User.objects.filter(foreign_invite_code=obj)
         return [ForeignInviteSerializer(user).data for user in queryset]
 
     def validate(self, data):
-        foreign_invite_code = self.initial_data.get('foreign_invite_code')
-        new_foreign_invite_code = data.get('foreign_invite_code')
+        # new_foreign_invite_code = data.get('foreign_invite_code')
+        new_foreign_invite_code = self.initial_data.get('foreign_invite_code')
+
+        foreign_invite_code = self.instance.foreign_invite_code
         if new_foreign_invite_code:
             if foreign_invite_code:
                 raise serializers.ValidationError(
                     PROFILE_ERROR_MASSAGE['reactivation']
                 )
             try:
-                user = User.objects.get(invite_code=new_foreign_invite_code)
+                foreign_user = User.objects.get(
+                    invite_code=new_foreign_invite_code
+                )
             except User.DoesNotExist:
                 raise serializers.ValidationError(
                     PROFILE_ERROR_MASSAGE['invalid_invite_code']
@@ -130,6 +132,6 @@ class ProfileSerializer (serializers.ModelSerializer):
                     VERIFY_ERROR_MASSAGE['invalid_parameters']
                 )
             else:
-                self.instance.new_foreign_invite_code = user
+                self.instance.foreign_invite_code = foreign_user
                 self.instance.save()
         return data

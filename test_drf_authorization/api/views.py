@@ -24,7 +24,8 @@ class LoginView(CreateAPIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         user = User.objects.get(pk=serializer.data['id'])
-        callback_token = CallbackToken.objects.filter(user=user).first()
+        callback_token = CallbackToken.objects.filter(user=user,
+                                                      is_active=True).last()
         send_sms_with_token(user.phone, callback_token)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -45,7 +46,7 @@ class VerifyView(APIView):
                     partial=True
                 )
                 if token_serializer.is_valid():
-                    return Response(serializer.data, status=status.HTTP_200_OK)
+                    return Response(token_serializer.data, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors,
                             status=status.HTTP_400_BAD_REQUEST)
@@ -55,6 +56,9 @@ class ProfileView(RetrieveUpdateAPIView):
     queryset = User.objects.all()
     permission_classes = (IsAuthenticated,)
     serializer_class = ProfileSerializer
+
+    def get_object(self) -> User:
+        return self.request.user
 
     def putch(self, request):
         serializer = self.serializer_class(data=request.data, partial=True)

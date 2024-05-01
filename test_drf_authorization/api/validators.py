@@ -7,8 +7,8 @@ from users.models import CallbackToken
 def age_token_validator(token) -> bool:
     """Проверка срока действия токена."""
     try:
-        callback_token = CallbackToken.objects.filter(key=token,
-                                                      is_active=True).first()
+        callback_token = CallbackToken.objects.get(key=token,
+                                                   is_active=True)
         token_life = timezone.now() - callback_token.created_at
         if token_life.total_seconds() < settings.TOKEN_EXPIRE_TIME:
             return True
