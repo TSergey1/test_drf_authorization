@@ -64,7 +64,7 @@ class VerifySerializer(serializers.Serializer):
             user = User.objects.get(phone=phone)
             CallbackToken.objects.get(user=user,
                                       key=token,
-                                      is_active=True).first()
+                                      is_active=True)
             data['user'] = user
             user.is_verified = True
             user.save()
@@ -112,9 +112,7 @@ class ProfileSerializer (serializers.ModelSerializer):
         return [ForeignInviteSerializer(user).data for user in queryset]
 
     def validate(self, data):
-        # new_foreign_invite_code = data.get('foreign_invite_code')
         new_foreign_invite_code = self.initial_data.get('foreign_invite_code')
-
         foreign_invite_code = self.instance.foreign_invite_code
         if new_foreign_invite_code:
             if foreign_invite_code:
