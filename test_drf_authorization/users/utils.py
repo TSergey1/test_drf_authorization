@@ -1,5 +1,5 @@
-import random
 import string
+from django.utils.crypto import get_random_string
 # from django.contrib.auth import hashers
 
 from django.conf import settings
@@ -13,19 +13,11 @@ def create_invate_code(length: int = settings.INVATE_CODE_LENGTH,
     """
     Возвращает сгенерированный код состоящий из {length} символов и чисел.
     """
-    return ''.join(random.choice(allowed_chars) for _ in range(length))
+    return get_random_string(length, allowed_chars)
 
-
-# def create_key(length: int = settings.KEY_LENGTH,
-#                allowed_chars: str = ALLOWED_CHARS_TOKEN) -> str:
-#     """Возвращает сгенерированный токен состоящий из {length} чисел."""
-
-#     return hashers.make_password(
-#         ''.join(random.choice(allowed_chars) for _ in range(length))
-#     )
 
 def create_key(length: int = settings.KEY_LENGTH,
                allowed_chars: str = ALLOWED_CHARS_TOKEN) -> str:
     """Возвращает сгенерированный токен состоящий из {length} чисел."""
 
-    return ''.join(random.choice(allowed_chars) for _ in range(length))
+    return get_random_string(length, allowed_chars)

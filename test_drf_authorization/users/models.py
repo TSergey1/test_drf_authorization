@@ -51,7 +51,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     phone = PhoneNumberField(unique=True, verbose_name='Номер телефона',
                              help_text=HELP_TEXT_PHONE)
     invite_code = models.CharField(
-        max_length=6, default=create_invate_code(),
+        max_length=settings.INVATE_CODE_LENGTH,
+        default=create_invate_code(),
         verbose_name='Инвайт-код'
     )
     foreign_invite_code = models.ForeignKey('self',

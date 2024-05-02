@@ -25,7 +25,7 @@ class LoginView(CreateAPIView):
         serializer.save()
         user = User.objects.get(pk=serializer.data['id'])
         callback_token = CallbackToken.objects.filter(user=user,
-                                                      is_active=True).last()
+                                                      is_active=True).first()
         send_sms_with_token(user.phone, callback_token)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -46,7 +46,8 @@ class VerifyView(APIView):
                     partial=True
                 )
                 if token_serializer.is_valid():
-                    return Response(token_serializer.data, status=status.HTTP_200_OK)
+                    return Response(token_serializer.data,
+                                    status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors,
                             status=status.HTTP_400_BAD_REQUEST)

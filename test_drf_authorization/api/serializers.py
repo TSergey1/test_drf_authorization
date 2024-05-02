@@ -1,10 +1,12 @@
 from django.conf import settings
+from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from phonenumber_field.serializerfields import PhoneNumberField
 
 from api.validators import age_token_validator
 from users.models import CallbackToken, User
+from users.utils import create_key
 
 VERIFY_ERROR_MASSAGE = {
     'required_data': 'Должны быть переданны  <token> и <phone>!',
@@ -31,10 +33,10 @@ class LoginSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user, _ = User.objects.get_or_create(**validated_data)
-        # if user.referral_code is None:
-        #     user.referral_code = generate_referral_code()
-        #     user.save()
-        token = CallbackToken.objects.create(user=user)
+        token, create = CallbackToken.objects.get_or_create(user=user)
+        if not create:
+            token.key = create_key()
+            token.created_at = timezone.now()
         token.save()
         return user
 
@@ -62,7 +64,7 @@ class VerifySerializer(serializers.Serializer):
             user = User.objects.get(phone=phone)
             CallbackToken.objects.get(user=user,
                                       key=token,
-                                      is_active=True)
+                                      is_active=True).first()
             data['user'] = user
             user.is_verified = True
             user.save()
