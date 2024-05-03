@@ -20,9 +20,6 @@ class UserManager(BaseUserManager):
 
         user, _ = User.objects.get_or_create(phone=phone,
                                              **extra_fields)
-        if user.invite_code is None:
-            user.invite_code = create_invate_code()
-            user.save()
         token = CallbackToken.objects.create(user=user)
         token.save()
         return user
@@ -52,7 +49,7 @@ class User(AbstractBaseUser, PermissionsMixin):
                              help_text=HELP_TEXT_PHONE)
     invite_code = models.CharField(
         max_length=settings.INVATE_CODE_LENGTH,
-        default=create_invate_code(),
+        default=create_invate_code,
         verbose_name='Инвайт-код'
     )
     foreign_invite_code = models.ForeignKey('self',
@@ -82,7 +79,7 @@ class CallbackToken(models.Model):
     user = models.ForeignKey(User,
                              related_name=None,
                              on_delete=models.CASCADE)
-    key = models.CharField(default=create_key(),
+    key = models.CharField(default=create_key,
                            max_length=settings.KEY_LENGTH)
     is_active = models.BooleanField(default=True)
 

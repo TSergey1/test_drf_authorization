@@ -36,6 +36,7 @@ class LoginSerializer(serializers.ModelSerializer):
         token, create = CallbackToken.objects.get_or_create(user=user)
         if not create:
             token.key = create_key()
+            token.is_active = True
             token.created_at = timezone.now()
         token.save()
         return user
@@ -101,7 +102,6 @@ class ProfileSerializer (serializers.ModelSerializer):
 
     class Meta:
         model = User
-        # read_only_fields = ('id', 'phone', 'invite_code',)
         fields = ('id', 'phone',
                   'invite_code',
                   'foreign_invite_code',
@@ -114,6 +114,7 @@ class ProfileSerializer (serializers.ModelSerializer):
     def validate(self, data):
         new_foreign_invite_code = self.initial_data.get('foreign_invite_code')
         foreign_invite_code = self.instance.foreign_invite_code
+
         if new_foreign_invite_code:
             if foreign_invite_code:
                 raise serializers.ValidationError(
