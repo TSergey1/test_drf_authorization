@@ -1,9 +1,9 @@
-from django.conf import settings
 from phonenumber_field.modelfields import PhoneNumberField
 from django.contrib.auth.models import (AbstractBaseUser, BaseUserManager,
                                         PermissionsMixin)
-from django.db import models
 
+from django.db import models
+from test_drf_authorization import settings
 from users.utils import create_invate_code, create_key
 
 HELP_TEXT_PHONE = 'Введите номер телефона в формате +7**********'
