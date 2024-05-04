@@ -90,5 +90,7 @@ git clone git@github.com:TSergey1/<имя проекта>.git
 | `foreign_invite_code`   | `string` | **Не обязательно**. Invite_code для подписки |
 
 
+Postman коллекция для тестов - hammer_system_test.postman_collection.json 
+
 
 
