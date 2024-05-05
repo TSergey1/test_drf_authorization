@@ -1,4 +1,4 @@
-# Тестовое задание
+# Тестовое задание (авторизация по смс)
 [![License MIT](https://img.shields.io/badge/licence-MIT-green)](https://opensource.org/license/mit/)
 [![Python](https://img.shields.io/badge/-Python-464646?style=flat-square&logo=Python)](https://www.python.org/)
 [![Django](https://img.shields.io/badge/-Django-464646?style=flat-square&logo=Django)](https://www.djangoproject.com/)
@@ -33,17 +33,19 @@
 
 
 # Подготовка и запуск проекта
-### Склонировать репозиторий на локальную машину:
+Склонировать репозиторий на локальную машину:
 ```
-git clone git@github.com:TSergey1/<имя проекта>.git
+git clone git@github.com:TSergey1/test_drf_authorization.git
 ```
-### Периименовать файл .env.example в .env:
+Периименовать файл .env.example в .env:
 
-### Запускаем проект:
+ Запускаем проект:
 Для запуска проекта, необходимо выполнить в каталоге приложения: ``` docker compose up  ```
 
-Сервер слушает по адресу ``` 0.0.0.0:8000 ```
-## Справка по API
+Сервер слушает по адресу ``` http://127.0.0.1:8000 ```
+Postman коллекция для тестов - hammer_system_test.postman_collection.json
+ReDoc документация доступна по ...api/schema/redoc/
+## Справка по API ()
 
 <details>
     <summary>User</summary>
@@ -88,9 +90,3 @@ git clone git@github.com:TSergey1/<имя проекта>.git
 | Parameter | Type     | Description                        |
 |:----------| :------- |:-----------------------------------|
 | `foreign_invite_code`   | `string` | **Не обязательно**. Invite_code для подписки |
-
-
-Postman коллекция для тестов - hammer_system_test.postman_collection.json 
-
-
-
