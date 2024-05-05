@@ -102,6 +102,7 @@ class ProfileSerializer (serializers.ModelSerializer):
 
     class Meta:
         model = User
+        read_only = ('id', 'phone', 'invite_code', 'activated_your_code')
         fields = ('id', 'phone',
                   'invite_code',
                   'foreign_invite_code',

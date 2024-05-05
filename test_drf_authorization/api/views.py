@@ -26,8 +26,12 @@ class LoginView(CreateAPIView):
         user = User.objects.get(pk=serializer.data['id'])
         callback_token = CallbackToken.objects.filter(user=user,
                                                       is_active=True).first()
-        send_sms_with_token(user.phone, callback_token)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        sms = send_sms_with_token(callback_token)
+# Возвращаем смс в ответе на запрос для тестов на
+# https://www.pythonanywhere.com/
+        response_data = serializer.data
+        response_data['sms'] = sms
+        return Response(response_data, status=status.HTTP_200_OK)
 
 
 class VerifyView(APIView):
