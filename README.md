@@ -45,7 +45,7 @@ git clone git@github.com:TSergey1/test_drf_authorization.git
 Сервер слушает по адресу ``` http://127.0.0.1:8000 ```
 Postman коллекция для тестов - hammer_system_test.postman_collection.json
 ReDoc документация доступна по ...api/schema/redoc/
-## Справка по API ()
+## Справка по API
 
 <details>
     <summary>User</summary>
